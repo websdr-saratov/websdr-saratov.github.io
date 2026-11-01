@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebSDR Saratov — онлайн-приёмник 70 см в Саратове</title>
+<meta name="description" content="WebSDR Saratov — бесплатный онлайн-приёмник диапазона 70 см (430–440 МГц) в центре Саратова. Слушайте эфир в браузере и проверяйте свои антенны по Саратовской области.">
+<meta name="keywords" content="WebSDR Saratov, WebSDR Саратов, веб SDR Саратов, онлайн приёмник Саратов, OpenWebRX Саратов, 70 см, 430 МГц, радиолюбители Саратов">
+<meta name="author" content="PiloT">
+<meta property="og:title" content="WebSDR Saratov — онлайн-приёмник 70 см">
+<meta property="og:description" content="Слушайте диапазон 70 см (430–440 МГц) из центра Саратова прямо в браузере.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#160407">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #120306;
+    --bg2: #1e070b;
+    --card: rgba(70, 10, 18, 0.45);
+    --line: rgba(255, 90, 100, 0.18);
+    --red: #b3121f;
+    --red-hi: #e3202f;
+    --red-glow: rgba(227, 32, 47, 0.55);
+    --text: #f5e6e7;
+    --muted: #c9a3a6;
+    --gold: #f2b84b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Manrope", system-ui, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(ellipse at 50% 30%, #3a0911 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 90%, #2a060c 0%, transparent 50%),
+      var(--bg);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+
+  /* ---------- верх ---------- */
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 22px 20px;
+  }
+  .logo { font-family: "Russo One", sans-serif; font-size: 20px; letter-spacing: 1px; }
+  .logo span { color: var(--red-hi); }
+  .callsign {
+    font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 20px;
+  }
+
+  /* ---------- главный экран ---------- */
+  .hero {
+    min-height: calc(100vh - 80px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 20px 16px 60px; position: relative;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: blink 1.6s infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+
+  h1 {
+    font-family: "Russo One", sans-serif;
+    font-size: clamp(40px, 9vw, 88px);
+    line-height: 1.05; letter-spacing: 2px;
+    background: linear-gradient(180deg, #fff 0%, #ffb3b8 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .subtitle { font-size: clamp(16px, 2.4vw, 20px); color: var(--muted); margin: 14px 0 56px; max-width: 620px; }
+
+  /* кнопка с радиоволнами */
+  .listen-wrap { position: relative; width: 240px; height: 240px; display: grid; place-items: center; }
+  .wave {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 2px solid var(--red-hi); opacity: 0;
+    animation: wave 3s ease-out infinite;
+  }
+  .wave:nth-child(2) { animation-delay: 1s; }
+  .wave:nth-child(3) { animation-delay: 2s; }
+  @keyframes wave {
+    0% { transform: scale(.55); opacity: .8; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+  .listen {
+    position: relative; z-index: 2;
+    width: 170px; height: 170px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    text-decoration: none; color: #fff;
+    background: radial-gradient(circle at 35% 30%, var(--red-hi), var(--red) 55%, #6d0912);
+    box-shadow: 0 0 40px var(--red-glow), inset 0 -6px 18px rgba(0,0,0,.35);
+    font-family: "Russo One", sans-serif; font-size: 22px; letter-spacing: 1px;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .listen:hover { transform: scale(1.06); box-shadow: 0 0 70px var(--red-glow), inset 0 -6px 18px rgba(0,0,0,.35); }
+  .listen:active { transform: scale(.98); }
+  .listen svg { width: 42px; height: 42px; }
+  .hint { margin-top: 30px; font-size: 14px; color: var(--muted); }
+  .hint b { color: var(--text); }
+
+  .scroll {
+    position: absolute; bottom: 18px; font-size: 13px; color: var(--muted); text-decoration: none;
+    opacity: .8;
+  }
+
+  /* ---------- блоки ---------- */
+  section.info { max-width: 1100px; margin: 0 auto; padding: 40px 20px 20px; }
+  h2 {
+    font-family: "Russo One", sans-serif; font-size: 28px; margin-bottom: 22px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  h2::before { content: ""; width: 6px; height: 28px; background: var(--red-hi); border-radius: 3px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 22px; backdrop-filter: blur(4px);
+  }
+  .card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 6px; }
+  .card .value { font-size: 20px; font-weight: 800; }
+  .card p { color: var(--muted); font-size: 15px; margin-top: 6px; }
+
+  .purpose {
+    margin-top: 16px; padding: 24px; border-radius: 16px;
+    background: linear-gradient(135deg, rgba(179,18,31,.35), rgba(70,10,18,.35));
+    border: 1px solid var(--line); font-size: 17px;
+  }
+
+  ol.steps { list-style: none; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li {
+    counter-increment: s; position: relative; padding: 16px 18px 16px 62px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  }
+  ol.steps li::before {
+    content: counter(s); position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    width: 32px; height: 32px; border-radius: 50%; background: var(--red);
+    display: grid; place-items: center; font-weight: 800;
+  }
+
+  .rules { display: grid; gap: 12px; }
+  .rule {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px;
+  }
+  .rule .ico { font-size: 22px; line-height: 1.2; }
+
+  .contacts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .tg {
+    display: flex; align-items: center; gap: 14px; text-decoration: none;
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px;
+    transition: border-color .2s, transform .2s;
+  }
+  .tg:hover { border-color: var(--red-hi); transform: translateY(-2px); }
+  .tg .circle {
+    flex: 0 0 46px; height: 46px; border-radius: 50%; background: var(--red);
+    display: grid; place-items: center;
+  }
+  .tg .circle svg { width: 24px; height: 24px; fill: #fff; }
+  .tg small { display: block; color: var(--muted); font-size: 13px; }
+  .tg strong { font-size: 17px; }
+
+  footer {
+    text-align: center; color: var(--muted); font-size: 13px;
+    padding: 50px 20px 34px; margin-top: 30px; border-top: 1px solid var(--line);
+  }
+  footer .again { display: inline-block; margin-bottom: 16px; color: var(--red-hi); font-weight: 800; text-decoration: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wave, .dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Web<span>SDR</span> Saratov</div>
+  <div class="callsign">📻 PiloT</div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="badge"><span class="dot"></span>В эфире · 70 см</div>
+    <h1>WebSDR<br>SARATOV</h1>
+    <p class="subtitle">Онлайн-приёмник диапазона 70 см в центре Саратова. Слушайте эфир прямо в браузере — без программ и регистрации.</p>
+
+    <div class="listen-wrap">
+      <span class="wave"></span><span class="wave"></span><span class="wave"></span>
+      <a class="listen" href="http://109.195.28.130:8073" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+          <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+        </svg>
+        СЛУШАТЬ
+      </a>
+    </div>
+
+    <p class="hint">Время одного сеанса — <b>до 1 часа</b></p>
+    <a class="scroll" href="#about">↓ О приёмнике</a>
+  </section>
+
+  <section class="info" id="about">
+    <h2>О приёмнике</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="label">Диапазон</div>
+        <div class="value">70 см</div>
+        <p>430–440 МГц</p>
+      </div>
+      <div class="card">
+        <div class="label">Антенна</div>
+        <div class="value">Diamond X50</div>
+        <p>Вертикальный коллинеар</p>
+      </div>
+      <div class="card">
+        <div class="label">Расположение</div>
+        <div class="value">Центр Саратова</div>
+        <p>Крыша 10-этажного дома</p>
+      </div>
+      <div class="card">
+        <div class="label">Оборудование</div>
+        <div class="value">RTL-SDR</div>
+        <p>OpenWebRX+ на Raspberry Pi</p>
+      </div>
+    </div>
+    <div class="purpose">
+      🎯 <b>Для чего этот приёмник:</b> WebSDR Saratov сделан для настройки и проверки антенн радиолюбителей Саратовской области. Выйдите в эфир — и сразу услышьте, как ваш сигнал принимается в центре Саратова.
+    </div>
+  </section>
+
+  <section class="info">
+    <h2>Как пользоваться</h2>
+    <ol class="steps">
+      <li>Нажмите кнопку <b>«Слушать»</b> — приёмник откроется в новой вкладке.</li>
+      <li>Нажмите на странице приёмника, чтобы включить звук (браузеры требуют одного нажатия).</li>
+      <li>Выберите режим <b>FM</b> и щёлкните по яркой полосе сигнала на водопаде.</li>
+      <li>Громкость и шумоподавитель (SQ) — в панели управления справа.</li>
+    </ol>
+  </section>
+
+  <section class="info">
+    <h2>Правила</h2>
+    <div class="rules">
+      <div class="rule"><span class="ico">⏱</span><div><b>Сеанс — до 1 часа.</b> После этого приёмник отключит вас автоматически, чтобы послушать могли и другие. Можно подключиться снова.</div></div>
+      <div class="rule"><span class="ico">🤝</span><div><b>Уважайте других слушателей.</b> Число мест ограничено — не открывайте приёмник в нескольких вкладках.</div></div>
+      <div class="rule"><span class="ico">📡</span><div><b>Проверяете антенну?</b> Работайте на малой мощности и не забывайте называть позывной.</div></div>
+    </div>
+  </section>
+
+  <section class="info">
+    <h2>Контакты</h2>
+    <div class="contacts">
+      <a class="tg" href="https://t.me/shtoza_64" target="_blank" rel="noopener">
+        <span class="circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.1 13 1.2 11.5c-1.1-.3-1.1-1.1.2-1.6L20.6 2.5c.9-.3 1.6.2 1.3 1.8z"/></svg></span>
+        <span><small>Связь с владельцем</small><strong>@shtoza_64</strong></span>
+      </a>
+      <a class="tg" href="https://t.me/russiaradios" target="_blank" rel="noopener">
+        <span class="circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.1 13 1.2 11.5c-1.1-.3-1.1-1.1.2-1.6L20.6 2.5c.9-.3 1.6.2 1.3 1.8z"/></svg></span>
+        <span><small>Группа радиолюбителей</small><strong>t.me/russiaradios</strong></span>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <a class="again" href="http://109.195.28.130:8073" target="_blank" rel="noopener">▶ Слушать эфир</a>
+  <div>WebSDR Saratov · онлайн-приёмник 70 см · Саратов, Россия</div>
+  <div>Владелец: PiloT · Работает на OpenWebRX+</div>
+</footer>
+
+</body>
+</html>

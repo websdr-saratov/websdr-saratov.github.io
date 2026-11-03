@@ -51,15 +51,47 @@
   .logo { font-family: "Russo One", sans-serif; font-size: 20px; letter-spacing: 1px; }
   .logo span { color: var(--red-hi); }
   .callsign {
-    font-size: 13px; color: var(--muted); border: 1px solid var(--line);
-    padding: 6px 12px; border-radius: 20px;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: "Russo One", sans-serif; font-size: 24px; letter-spacing: 2px;
+    color: #fff; border: 1px solid rgba(227, 32, 47, .55);
+    padding: 8px 20px; border-radius: 30px;
+    background: rgba(70, 10, 18, .45);
+    box-shadow: 0 0 22px rgba(227, 32, 47, .35);
+    perspective: 400px;
   }
+  .callsign .radio { font-size: 22px; }
+  .callsign .name { display: inline-flex; }
+  .callsign .name span {
+    display: inline-block;
+    animation: spin 4s ease-in-out infinite;
+    text-shadow: 0 0 12px var(--red-glow);
+  }
+  .callsign .name span:nth-child(1) { animation-delay: 0s; }
+  .callsign .name span:nth-child(2) { animation-delay: .15s; color: var(--red-hi); }
+  .callsign .name span:nth-child(3) { animation-delay: .3s; }
+  .callsign .name span:nth-child(4) { animation-delay: .45s; }
+  .callsign .name span:nth-child(5) { animation-delay: .6s; color: var(--red-hi); }
+  @keyframes spin {
+    0%, 45% { transform: rotateY(0deg); }
+    70%, 100% { transform: rotateY(360deg); }
+  }
+
+  /* мотоцикл на фоне */
+  .bike {
+    position: absolute; z-index: 0; pointer-events: none;
+    left: 50%; bottom: 4%; transform: translateX(-50%);
+    width: min(1050px, 120vw); opacity: .5;
+    filter: drop-shadow(0 0 28px rgba(227, 32, 47, .25));
+  }
+  .hero > *:not(.bike) { position: relative; z-index: 1; }
+  .hero > .scroll { position: absolute; }
 
   /* ---------- главный экран ---------- */
   .hero {
     min-height: calc(100vh - 80px);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 20px 16px 60px; position: relative;
+    overflow: hidden;
   }
   .badge {
     display: inline-flex; align-items: center; gap: 8px;
@@ -175,7 +207,7 @@
   footer .again { display: inline-block; margin-bottom: 16px; color: var(--red-hi); font-weight: 800; text-decoration: none; }
 
   @media (prefers-reduced-motion: reduce) {
-    .wave, .dot { animation: none; }
+    .wave, .dot, .callsign .name span { animation: none; }
   }
 </style>
 </head>
@@ -183,11 +215,72 @@
 
 <header>
   <div class="logo">Web<span>SDR</span> Saratov</div>
-  <div class="callsign">📻 PiloT</div>
+  <div class="callsign" aria-label="PiloT"><span class="radio">📻</span><span class="name" aria-hidden="true"><span>P</span><span>i</span><span>l</span><span>o</span><span>T</span></span></div>
 </header>
 
 <main>
   <section class="hero">
+    <svg class="bike" viewBox="0 0 640 360" aria-hidden="true">
+      <defs>
+        <linearGradient id="bodyG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2e080e"/>
+          <stop offset="1" stop-color="#060102"/>
+        </linearGradient>
+        <linearGradient id="rimG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#e3202f" stop-opacity="0"/>
+          <stop offset=".6" stop-color="#ff4a57"/>
+          <stop offset="1" stop-color="#e3202f" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="floorG" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#e3202f" stop-opacity=".5"/>
+          <stop offset="1" stop-color="#e3202f" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- отсвет на асфальте -->
+      <ellipse cx="318" cy="334" rx="250" ry="14" fill="url(#floorG)"/>
+      <!-- маятник -->
+      <path d="M170 262 L276 220 L286 236 L176 278 Z" fill="#14030a" stroke="#5a0d16" stroke-width="2"/>
+      <!-- вилка -->
+      <path d="M412 116 L460 268" stroke="#1c050b" stroke-width="16" stroke-linecap="round"/>
+      <path d="M412 116 L460 268" stroke="#e3202f" stroke-width="2" stroke-opacity=".55"/>
+      <!-- колёса -->
+      <g fill="none">
+        <circle cx="170" cy="268" r="58" stroke="#050102" stroke-width="20"/>
+        <circle cx="170" cy="268" r="58" stroke="#e3202f" stroke-width="1.5" stroke-opacity=".7"/>
+        <circle cx="170" cy="268" r="42" stroke="#b3121f" stroke-width="3"/>
+        <circle cx="460" cy="268" r="58" stroke="#050102" stroke-width="20"/>
+        <circle cx="460" cy="268" r="58" stroke="#e3202f" stroke-width="1.5" stroke-opacity=".7"/>
+        <circle cx="460" cy="268" r="42" stroke="#b3121f" stroke-width="3"/>
+        <g stroke="#3a0911" stroke-width="5" stroke-linecap="round">
+          <path d="M170 268 L170 228 M170 268 L208 256 M170 268 L194 300 M170 268 L146 300 M170 268 L132 256"/>
+          <path d="M460 268 L460 228 M460 268 L498 256 M460 268 L484 300 M460 268 L436 300 M460 268 L422 256"/>
+        </g>
+        <circle cx="460" cy="268" r="28" stroke="#4a0c14" stroke-width="4" stroke-dasharray="3 5"/>
+      </g>
+      <circle cx="170" cy="268" r="9" fill="#1c050b" stroke="#e3202f" stroke-width="2"/>
+      <circle cx="460" cy="268" r="9" fill="#1c050b" stroke="#e3202f" stroke-width="2"/>
+      <!-- переднее крыло -->
+      <path d="M418 220 Q460 196 504 224" fill="none" stroke="#0b0204" stroke-width="8" stroke-linecap="round"/>
+      <!-- выхлоп -->
+      <path d="M300 246 L222 228 L226 216 L304 232 Z" fill="#14030a" stroke="#6a0f19" stroke-width="1.5"/>
+      <!-- корпус -->
+      <path d="M108 120 L168 140 Q210 150 248 150 L276 126 Q300 106 334 102 L380 106 L394 102
+               L442 82 Q470 104 478 130 L488 150 L472 178 L442 214 L384 248 L300 250 L268 226
+               L232 176 L168 166 L122 140 Z"
+            fill="url(#bodyG)" stroke="#e3202f" stroke-width="2" stroke-opacity=".75" stroke-linejoin="round"/>
+      <!-- двигатель -->
+      <path d="M272 224 L302 246 L380 244 L404 200 L346 180 L284 186 Z" fill="#0b0204" stroke="#4a0c14" stroke-width="2"/>
+      <!-- полоса по обтекателю -->
+      <path d="M300 158 L400 150 L452 120" fill="none" stroke="#b3121f" stroke-width="4" stroke-linecap="round"/>
+      <path d="M318 176 L404 170 L446 152" fill="none" stroke="#5a0d16" stroke-width="2" stroke-linecap="round"/>
+      <!-- ветровое стекло и фары -->
+      <path d="M394 102 L442 82 Q450 90 455 98 L410 112 Z" fill="#3a0911" fill-opacity=".85"/>
+      <path d="M466 138 L488 148 L482 156 L462 148 Z" fill="#ff4a57"/>
+      <!-- блик по баку и седлу -->
+      <path d="M168 143 Q210 153 248 153 L276 129 Q300 109 334 105 L380 109" fill="none" stroke="url(#rimG)" stroke-width="3"/>
+      <!-- стоп-сигнал -->
+      <path d="M108 120 L128 128 L124 134 L110 127 Z" fill="#ff2a3a"/>
+    </svg>
     <div class="badge"><span class="dot"></span>В эфире · 70 см</div>
     <h1>WebSDR<br>SARATOV</h1>
     <p class="subtitle">Онлайн-приёмник диапазона 70 см в центре Саратова. Слушайте эфир прямо в браузере — без программ и регистрации.</p>
